@@ -57,6 +57,7 @@ import os
 import signal
 import sys
 import getopt
+import datetime
 
 try:
     import mistapi
@@ -298,8 +299,8 @@ def _backup_full_org(mist_session, org_id, org_name):
     return backup
 
 
-def _save_to_file(backup_file, backup, org_name):
-    backup_path = os.path.join(backup_folder, org_name, backup_file)
+def _save_to_file(backup_file, backup, org_folder_name):
+    backup_path = os.path.join(backup_folder, org_folder_name, backup_file)
     message=f"Saving to file {backup_path} "
     print(f"{message}".ljust(79, "."), end="", flush=True)
     try:
@@ -313,13 +314,15 @@ def _save_to_file(backup_file, backup, org_name):
 
 def _start_org_backup(mist_session, org_id, org_name) -> bool:
     # FOLDER
+    time_string = datetime.datetime.now().strftime('%b-%d-%Y_%H-%M-%S')
+    org_folder_name = org_name+'_'+time_string
     try:
         if not os.path.exists(backup_folder):
             os.makedirs(backup_folder)
         os.chdir(backup_folder)
-        if not os.path.exists(org_name):
-            os.makedirs(org_name)
-        os.chdir(org_name)
+        if not os.path.exists(org_folder_name):
+            os.makedirs(org_folder_name)
+        os.chdir(org_folder_name)
     except Exception as e:
         print(e)
         logger.error("Exception occurred", exc_info=True)
@@ -338,7 +341,7 @@ def _start_org_backup(mist_session, org_id, org_name) -> bool:
     # BACKUP
     try:
         backup = _backup_full_org(mist_session, org_id, org_name)
-        _save_to_file(backup_file, backup, org_name)
+        _save_to_file(backup_file, backup, org_folder_name)
     except Exception as e:
         print(e)
         logger.error("Exception occurred", exc_info=True)
