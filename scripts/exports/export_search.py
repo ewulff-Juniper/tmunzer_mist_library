@@ -105,7 +105,14 @@ def _query_param_input(query_param_name: str, query_param_type: type)->any: # ty
     value=None
     while True:
         value=input(f"\"{query_param_name}\" ({str(query_param_type).replace('<class ', '').replace('>', '')}) : ")
-        # TODO: process bool and int
+        if query_param_type is int:
+            try:
+                return int(value)
+            except ValueError:
+                pass
+        elif query_param_type is bool:
+            if value in ['True', 'true', '1', 't', 'T']: return True
+            elif value in ['False', 'false', '0', 'f', 'F']: return False
         if type(value) is query_param_type or not value:
             return value
 
