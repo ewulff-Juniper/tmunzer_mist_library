@@ -362,7 +362,7 @@ def _searchClientWirelessSessions(apisession: mistapi.APISession, func:str, scop
 
 def _searchClientEvents(apisession: mistapi.APISession, func:str, scope_id:str, query_params:dict|None=None):
     query_params_type = {
-        "type": bool,
+        "type": str,
         "reason_code": int,
         "ssid": str,
         "ap":str,
