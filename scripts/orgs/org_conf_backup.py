@@ -82,6 +82,7 @@ backup_file = "org_conf_file.json"
 log_file = "./script.log"
 file_prefix = ".".join(backup_file.split(".")[:-1])
 env_file = "~/.mist_env"
+site_limit = 250
 
 #####################################################################
 #### LOGS ####
@@ -266,7 +267,20 @@ def _backup_full_org(mist_session, org_id, org_name):
     
     ### SITES BACKUP
     backup["sites"]={}
+    if len(backup["org"]["sites"]) > site_limit:
+        print("\n\nWarning! There are "+str(len(backup["org"]["sites"]))+" sites. This may result in too many API calls. "
+                                                                "As a workaround please provide a new env_file for each batch of "+str(site_limit)+" sites")
+    site_num = 0
     for site in backup["org"]["sites"]:
+        site_num += 1
+        if site_num % site_limit == 0:
+            new_env_file = input("\nSite limit reached, please enter a new env_file: ")
+            while (new_env_file == env_file):
+                new_env_file = input("Same env_file as before, please enter a new env_file")
+            while not os.path.exists(new_env_file):
+                new_env_file = input("Can't find env file, please double check path and name")
+            mist_session = mistapi.APISession(env_file=new_env_file)
+            mist_session.login()
         site_id = site["id"]
         site_name = site["name"]
         site_backup = {}
